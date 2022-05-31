@@ -53,8 +53,12 @@ async function searchForPokemon(event){
   else if (option === "type") {
     const pokemonPromise = getAllPokemonByType(`${searchVal}`);
     pokemonPromise.then((pokemon) => {
-      console.log("All Pokemon for type found: " + pokemon);
       domElements.loading.style.opacity = '0';
+      console.log("All Pokemon of type found: " + pokemon.length);
+      // wait 1 second for all the api calls to complete
+      setTimeout( () => {
+        console.log("(1s later) All Pokemon of type found: " + pokemon.length);
+      }, 1000);
 
       if (pokemon == null){
         createNotFound();
@@ -84,7 +88,18 @@ function createPokemonCard(pokemon) {
 
   // Append card to the grid container
   pokeListItem.innerHTML = pokeInnerHTML;
-  domElements.pokeGridContainer.appendChild(pokeListItem);
+  // set id of new html element
+  pokeListItem.id = pokeName + "-poke-list-item";
+  // add it to the dom
+  domElements.pokeGridContainer.appendChild(pokeListItem)
+
+  // add event listener to the card
+  pokeListItem.addEventListener('click', onCardClick);
+
+  function onCardClick(event){
+    console.log("Click on event target id: " + event.currentTarget.id);
+    console.log("You clicked on the card for: " + pokeName);
+  }
 }
 
 function createNotFound(){
