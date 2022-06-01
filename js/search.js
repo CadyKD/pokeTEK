@@ -28,7 +28,7 @@ function init(){
 async function searchForPokemon(event){
   console.log("Clicked target ID: " + event.target.id);
   const searchVal = domElements.inputField.value.toLowerCase();
-  console.log("Serach value: " + searchVal);
+  console.log("Search value: " + searchVal);
   // add loading to dom
   domElements.loading.style.opacity = "1";
   domElements.pokeGridContainer.innerHTML = "";
@@ -55,6 +55,7 @@ async function searchForPokemon(event){
     pokemonPromise.then((pokemon) => {
       console.log("All Pokemon for type found: " + pokemon);
       domElements.loading.style.opacity = '0';
+      pokemon.sort();
 
       if (pokemon == null){
         createNotFound();
