@@ -17,7 +17,7 @@ searchButton.addEventListener('click', searchForPokemon);
 async function searchForPokemon(event){
   console.log("Clicked target ID: " + event.target.id);
   const searchVal = inputField.value.toLowerCase();
-  console.log("Serach value: " + searchVal);
+  console.log("Search value: " + searchVal);
   // add loading to dom
   loading.style.opacity = "1";
   pokeGridContainer.innerHTML = "";
@@ -44,6 +44,7 @@ async function searchForPokemon(event){
     pokemonPromise.then((pokemon) => {
       console.log("All Pokemon for type found: " + pokemon);
       loading.style.opacity = '0';
+      pokemon.sort();
 
       if (pokemon == null){
         createNotFound();
