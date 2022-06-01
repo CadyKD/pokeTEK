@@ -8,11 +8,11 @@ window.onload = init;
 // DOM ELEMENTS
 const domElements = {
   collectDOM: function (){
-    this.searchButton = document.getElementById("poke-search-button");
-    this.pokeGridContainer = document.getElementById("poke-grid-container");
-    this.inputField = document.getElementById("pokesearch-input");
-    this.selectField = document.getElementById("pokefilter");
-    this.loading = document.getElementById("loading-icon-container");
+	this.searchButton = document.getElementById("poke-search-button");
+	this.pokeGridContainer = document.getElementById("poke-grid-container");
+	this.inputField = document.getElementById("pokesearch-input");
+	this.selectField = document.getElementById("pokefilter");
+	this.loading = document.getElementById("loading-icon-container");
   }
 }
 
@@ -28,7 +28,7 @@ function init(){
 async function searchForPokemon(event){
   console.log("Clicked target ID: " + event.target.id);
   const searchVal = domElements.inputField.value.toLowerCase();
-  console.log("Serach value: " + searchVal);
+  console.log("Search value: " + searchVal);
   // add loading to dom
   domElements.loading.style.opacity = "1";
   domElements.pokeGridContainer.innerHTML = "";
@@ -36,37 +36,38 @@ async function searchForPokemon(event){
   let option = domElements.selectField.value;
   // let pokemon = [];
   if (option === "name") {
-    // create a promise object
-    const pokemonNamePromise = getPokemonByName(`${searchVal}`);
-    // when promise is fulfilled, execute callback function
-    pokemonNamePromise.then( (pokemon) => {
-      domElements.loading.style.opacity = '0';
-      if (pokemon != null) {
-        console.log("Pokemon found: " + pokemon);
-        createPokemonCard(pokemon);
-      } else {
-        createNotFound();
-      }
-    });
+	// create a promise object
+	const pokemonNamePromise = getPokemonByName(`${searchVal}`);
+	// when promise is fulfilled, execute callback function
+	pokemonNamePromise.then( (pokemon) => {
+	  domElements.loading.style.opacity = '0';
+	  if (pokemon != null) {
+		console.log("Pokemon found: " + pokemon);
+		createPokemonCard(pokemon);
+	  } else {
+		createNotFound();
+	  }
+	});
   }
 
   else if (option === "type") {
-    const pokemonPromise = getAllPokemonByType(`${searchVal}`);
-    pokemonPromise.then((pokemon) => {
-      domElements.loading.style.opacity = '0';
-      console.log("All Pokemon of type found: " + pokemon.length);
-      // wait 1 second for all the api calls to complete
-      setTimeout( () => {
-        console.log("(1s later) All Pokemon of type found: " + pokemon.length);
-      }, 1000);
+	const pokemonPromise = getAllPokemonByType(`${searchVal}`);
+	pokemonPromise.then((pokemon) => {
+	  domElements.loading.style.opacity = '0';
+	  console.log("All Pokemon of type found: " + pokemon.length);
+	  // wait 1 second for all the api calls to complete
+	  setTimeout( () => {
+		console.log("(1s later) All Pokemon of type found: " + pokemon.length);
+	  }, 1000);
 
-      if (pokemon == null){
-        createNotFound();
-      }
-    })
+	  if (pokemon == null){
+		createNotFound();
+	  }
+	})
   }
 }
 
+var allPokeCards = [];
 // GENERATE POKEMON LIST ITEM AND ADD IT TO THE DOM
 function createPokemonCard(pokemon) {
   const pokeListItem = document.createElement("div");
@@ -75,14 +76,17 @@ function createPokemonCard(pokemon) {
   // Fix for capitalizing first letter
   const pokeName = (pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1));
   const pokeImg = pokemon.sprites.front_default;
-  const pokeTypes = pokemon.types.map(el => el.type.name);
+  const pokeTypes = pokemon.types.map(el => el.type.name).join(", ");
+  const dexNumber = pokemon.species.url.split("/")[6];
 
+  	domElements.pokeGridContainer.innerHTML = '';
   // Build out the html for the item
   const pokeInnerHTML = `
-    <div class="info-container">
-        <h2>${pokeName}</h2>
-        <p>type: ${pokeTypes}</p>
-    </div>
+	<div class="info-container">
+		<h2>${pokeName}</h2>
+		<p>National Dex #${dexNumber}</p>
+		<p>type: ${pokeTypes}</p>
+	</div>
   <div class="img-container"><img src="${pokeImg}"></div>
   `;
 
@@ -90,15 +94,32 @@ function createPokemonCard(pokemon) {
   pokeListItem.innerHTML = pokeInnerHTML;
   // set id of new html element
   pokeListItem.id = pokeName + "-poke-list-item";
+
+  	let dexAry = allPokeCards[dexNumber];
+  	if(!Array.isArray(dexAry)) {
+  		dexAry = [];
+  		allPokeCards[dexNumber] = dexAry;
+  	}
+  	dexAry.push(pokeListItem);
+  	for (let i = 0; i < allPokeCards.length ; i++) {// Outer Ary
+  		let currPokeInnerAry = allPokeCards[i];
+  		// If there's no pokemon using this dex number, continue past it
+  		if(!Array.isArray(currPokeInnerAry))
+  			continue;
+  		for(let j = 0; j < currPokeInnerAry.length; j++) // Inner Ary
+  		{
+  			domElements.pokeGridContainer.appendChild(currPokeInnerAry[j]);
+  		}
+  	}
   // add it to the dom
-  domElements.pokeGridContainer.appendChild(pokeListItem)
+//  domElements.pokeGridContainer.appendChild(pokeListItem)
 
   // add event listener to the card
   pokeListItem.addEventListener('click', onCardClick);
 
   function onCardClick(event){
-    console.log("Click on event target id: " + event.currentTarget.id);
-    console.log("You clicked on the card for: " + pokeName);
+	console.log("Click on event target id: " + event.currentTarget.id);
+	console.log("You clicked on the card for: " + pokeName);
   }
 }
 
@@ -110,10 +131,10 @@ function createNotFound(){
   errListItem.classList.add("poke-list-item");
 
   const pokeInnerHTML = `
-    <div class="info-container">
-        <h2>MissingNo.</h2>
-        <p>No matching results</p>
-    </div>
+	<div class="info-container">
+		<h2>MissingNo.</h2>
+		<p>No matching results</p>
+	</div>
   <div class="img-container"><img src="../images/error.png">
   </div>
   `;
@@ -127,62 +148,62 @@ function createNotFound(){
 // Fetch a Pokemon by name
 async function getPokemonByName(name) {
   try{
-    //
-    const responsePromise = await fetchWithTimeout((`${URL}/pokemon/${name}`), {timeout: 5000})
-        .catch(e => {
-          console.log(e);
-        });
+	//
+	const responsePromise = await fetchWithTimeout((`${URL}/pokemon/${name}`), {timeout: 5000})
+		.catch(e => {
+		  console.log(e);
+		});
 
-    if (responsePromise.status != 200){
+	if (responsePromise.status != 200){
 
-      // stop loading screen
-      domElements.loading.style.opacity = '0';
-      console.log("status from api call: " + responsePromise.status);
-      // show lack of results from completed call in the dom
-      return null;
+	  // stop loading screen
+	  domElements.loading.style.opacity = '0';
+	  console.log("status from api call: " + responsePromise.status);
+	  // show lack of results from completed call in the dom
+	  return null;
 
-    } else {
-      // the .json method parses the json into a JavaScript object
-      const pokemon = await responsePromise.json();
-      console.log(pokemon);
-      return pokemon;
-    }
+	} else {
+	  // the .json method parses the json into a JavaScript object
+	  const pokemon = await responsePromise.json();
+	  console.log(pokemon);
+	  return pokemon;
+	}
 
   } catch (error){
-    console.log(error);
+	console.log(error);
   }
 
 }
 
 async function getAllPokemonByType(type) {
   try {
-    const res = await fetchWithTimeout(`${URL}/type/${type}`, {timeout: 5000})
-        .catch(e => {
-          console.log(e);
-          // createNotFound();
-          return null;
-        });
+	const res = await fetchWithTimeout(`${URL}/type/${type}`, {timeout: 5000})
+		.catch(e => {
+		  console.log(e);
+		  // createNotFound();
+		  return null;
+		});
 
-    if (res.status != 200){
-      console.log("status from api call: " + res.status);
-      return null;
-    }
+	if (res.status != 200){
+	  console.log("status from api call: " + res.status);
+	  return null;
+	}
 
-    const pokemonType = await res.json();
-    let pokemon = [];
+	const pokemonType = await res.json();
+	let pokemon = [];
 
-    for(let i = 0; i < pokemonType.pokemon.length; i++) {
-      const pokePromise = getPokemonByName(pokemonType.pokemon[i].pokemon.name);
-      pokePromise.then((pokePromRes) => {
-        if (pokePromRes.sprites.front_default) {
-          pokemon.push(pokePromRes);
-          createPokemonCard(pokePromRes);
-        }
-      });
-    }
-    return pokemon;
+	for(let i = 0; i < pokemonType.pokemon.length; i++) {
+	  const pokePromise = getPokemonByName(pokemonType.pokemon[i].pokemon.name);
+	  pokePromise.then((pokePromRes) => {
+		if (pokePromRes.sprites.front_default) {
+		  pokemon.push(pokePromRes);
+		  createPokemonCard(pokePromRes);
+		}
+	  });
+	}
+	return pokemon;
   } catch (error) {
-    domElements.loading.style.opacity = '0';
+	domElements.loading.style.opacity = '0';
   }
 
 }
@@ -193,8 +214,8 @@ async function fetchWithTimeout(resource, options = {}) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
   const response = await fetch(resource, {
-    ...options,
-    signal: controller.signal
+	...options,
+	signal: controller.signal
   });
   clearTimeout(id);
   return response;
